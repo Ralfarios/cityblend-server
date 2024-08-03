@@ -140,9 +140,9 @@ export class ColorService {
     }
   }
 
-  async swapOrder(id: string, SwapOrderColorDto: SwapOrderColorDto) {
+  async swapOrder(id: string, swapOrderColorDto: SwapOrderColorDto) {
     try {
-      const displayOrder = SwapOrderColorDto.display_order;
+      const displayOrder = swapOrderColorDto.display_order;
 
       const curr = await this.db.color.findFirstOrThrow({
         where: { id },
@@ -168,7 +168,7 @@ export class ColorService {
         statusCode: HttpStatus.OK,
         data,
         error: null,
-        message: "Color's display color has been swapped",
+        message: "Color's display order has been swapped",
       });
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {

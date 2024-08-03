@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+}
+
+model User {
+  id              String       @id @default(cuid())
+  name            String
+  username        String       @unique
+  email           String       @unique
+  password        String
+  profile_img_url String?
+  is_verified     Boolean      @default(false)
+  role            UserRole     @default(CUSTOMER)
+  subcategory     Subcategory? @relation(fields: [subcategory_id], references: [id], onDelete: Cascade)
+  subcategory_id  String?
+  created_at      DateTime     @default(now())
+  edited_at       DateTime?    @updatedAt
+}
+
+model Product {
+  id               String         @id @default(cuid())
+  code             String         @unique
+  name             String
+  care_instruction String?
+  description      String?
+  stock            ProductStock[]
+  created_at       DateTime       @default(now())
+  edited_at        DateTime?      @updatedAt
+  Subcategory      Subcategory?   @relation(fields: [subcategoryId], references: [id])
+  subcategoryId    String?
+}
+
+model Color {
+  id            String         @id @default(cuid())
+  name          String
+  code          String         @unique
+  color_code    String
+  display_order Int            @unique
+  created_at    DateTime       @default(now())
+  edited_at     DateTime?      @updatedAt
+  stock         ProductStock[]
+}
+
+model Size {
+  id            String         @id @default(cuid())
+  name          String
+  code          String         @unique
+  display_order Int            @unique
+  stock         ProductStock[]
+  created_at    DateTime       @default(now())
+  edited_at     DateTime?      @updatedAt
+}
+
+model ProductStock {
+  id            String    @id @default(cuid())
+  product       Product?  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  product_id    String?
+  color         Color?    @relation(fields: [color_id], references: [id], onDelete: Cascade)
+  color_id      String?
+  size          Size?     @relation(fields: [size_id], references: [id], onDelete: Cascade)
+  size_id       String?
+  stockQuantity Int       @default(0)
+  created_at    DateTime  @default(now())
+  edited_at     DateTime? @updatedAt
+}
+
+model Category {
+  id            String        @id @default(cuid())
+  name          String
+  code          String
+  display_order Int           @unique
+  created_at    DateTime      @default(now())
+  edited_at     DateTime?     @updatedAt
+  Subcategory   Subcategory[]
+}
+
+model Subcategory {
+  id            String    @id @default(cuid())
+  name          String
+  code          String
+  display_order Int       @unique
+  category      Category? @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  category_id   String?
+  product       Product[]
+  created_at    DateTime  @default(now())
+  edited_at     DateTime? @updatedAt
+  User          User[]
+}

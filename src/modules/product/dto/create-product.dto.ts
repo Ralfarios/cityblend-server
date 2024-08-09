@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 import { EXCEPTION_FIELD_CODE } from 'src/common/consts/exception.const';
 
 export class CreateProductDto {
@@ -45,5 +51,6 @@ export class CreateProductDto {
   @IsNotEmpty({
     message: ({ property }) => EXCEPTION_FIELD_CODE.REQUIRED + property,
   })
+  @Min(0, { message: ({ property }) => EXCEPTION_FIELD_CODE.MIN + property })
   price: number;
 }

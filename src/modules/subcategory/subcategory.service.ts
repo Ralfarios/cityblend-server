@@ -97,6 +97,40 @@ export class SubcategoryService {
     try {
       const data = await this.db.subcategory.findFirstOrThrow({
         where: { id },
+        include: {
+          products: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              product_images: { select: { id: true, image_url: true } },
+              code: true,
+              stocks: {
+                select: {
+                  id: true,
+                  code: true,
+                  stock_quantity: true,
+                  discount_percent: true,
+                  color: {
+                    select: {
+                      id: true,
+                      name: true,
+                      code: true,
+                      color_code: true,
+                    },
+                  },
+                  size: {
+                    select: {
+                      id: true,
+                      name: true,
+                      code: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       });
 
       return new CommonResponseDto({

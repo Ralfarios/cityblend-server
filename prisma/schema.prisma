@@ -95,14 +95,14 @@ model Category {
   display_order Int           @unique
   created_at    DateTime      @default(now())
   edited_at     DateTime?     @updatedAt
-  Subcategory   Subcategory[]
+  subcategory   Subcategory[]
 }
 
 model Subcategory {
   id            String    @id @default(cuid())
   name          String
   code          String
-  display_order Int       @unique
+  display_order Int
   category      Category? @relation(fields: [category_id], references: [id], onDelete: Cascade)
   category_id   String?
   product       Product[]

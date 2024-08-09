@@ -6,6 +6,7 @@ export const EXCEPTION_PRISMA_CODE = {
 
 export const EXCEPTION_FIELD_CODE = {
   REQUIRED: 'required.field.',
+  ARRAY_NOT_EMPTY: 'required_array.field.',
   MIN: 'min_char.field.',
   MAX: 'max_char.field.',
   LENGTH: 'length.field.',
@@ -15,5 +16,6 @@ export const EXCEPTION_FIELD_CODE = {
     STRING: 'type.string.field.',
     NUMBER: 'type.number.field.',
     BOOLEAN: 'type.boolean.field.',
+    ARRAY: 'type.array.field.',
   },
 };

@@ -1,7 +1,7 @@
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { PaginationQueryDto } from 'src/common/dto/query.dto';
 
-enum ColorOrderBy {
+enum ProductOrderBy {
   CREATED_AT = 'created_at',
   NAME = 'name',
   CODE = 'code',
@@ -23,8 +23,8 @@ export class PaginationProductQueryDto extends PaginationQueryDto {
   readonly order_sort?: OrderSort;
 
   @IsOptional()
-  @IsEnum(ColorOrderBy)
-  order_by?: ColorOrderBy;
+  @IsEnum(ProductOrderBy)
+  order_by?: ProductOrderBy;
 
   @IsOptional()
   @IsString()

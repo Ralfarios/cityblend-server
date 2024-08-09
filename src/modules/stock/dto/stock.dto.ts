@@ -3,38 +3,19 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Length,
   Min,
 } from 'class-validator';
 import { EXCEPTION_FIELD_CODE } from 'src/common/consts/exception.const';
 
-export class CreateProductDto {
+export class StockDto {
   @IsNotEmpty({
     message: ({ property }) => EXCEPTION_FIELD_CODE.REQUIRED + property,
   })
   @IsString({
     message: ({ property }) => EXCEPTION_FIELD_CODE.TYPE.STRING + property,
   })
-  name: string;
-
-  @IsString({
-    message: ({ property }) => EXCEPTION_FIELD_CODE.TYPE.STRING + property,
-  })
-  @IsOptional()
-  care_instruction?: string;
-
-  @IsNotEmpty({
-    message: ({ property }) => EXCEPTION_FIELD_CODE.REQUIRED + property,
-  })
-  @IsString({
-    message: ({ property }) => EXCEPTION_FIELD_CODE.TYPE.STRING + property,
-  })
-  code: string;
-
-  @IsString({
-    message: ({ property }) => EXCEPTION_FIELD_CODE.TYPE.STRING + property,
-  })
-  @IsOptional()
-  description?: string;
+  product_id: string;
 
   @IsNotEmpty({
     message: ({ property }) => EXCEPTION_FIELD_CODE.REQUIRED + property,
@@ -42,7 +23,15 @@ export class CreateProductDto {
   @IsString({
     message: ({ property }) => EXCEPTION_FIELD_CODE.TYPE.STRING + property,
   })
-  subcategory_id: string;
+  color_id: string;
+
+  @IsNotEmpty({
+    message: ({ property }) => EXCEPTION_FIELD_CODE.REQUIRED + property,
+  })
+  @IsString({
+    message: ({ property }) => EXCEPTION_FIELD_CODE.TYPE.STRING + property,
+  })
+  size_id: string;
 
   @IsNumber(
     { allowInfinity: false, allowNaN: false },
@@ -52,5 +41,25 @@ export class CreateProductDto {
     message: ({ property }) => EXCEPTION_FIELD_CODE.REQUIRED + property,
   })
   @Min(0, { message: ({ property }) => EXCEPTION_FIELD_CODE.MIN + property })
-  price: number;
+  stock_quantity: number;
+
+  @IsNumber(
+    { allowInfinity: false, allowNaN: false },
+    { message: ({ property }) => EXCEPTION_FIELD_CODE.TYPE.NUMBER + property },
+  )
+  @IsOptional()
+  @Min(0, { message: ({ property }) => EXCEPTION_FIELD_CODE.MIN + property })
+  discount_percent?: number;
+
+  @IsNotEmpty({
+    message: ({ property }) => EXCEPTION_FIELD_CODE.REQUIRED + property,
+  })
+  @IsString({
+    message: ({ property }) => EXCEPTION_FIELD_CODE.TYPE.STRING + property,
+  })
+  @Length(4, 6, {
+    message: ({ property, constraints }) =>
+      EXCEPTION_FIELD_CODE.LENGTH + property + `.${constraints}`,
+  })
+  code: string;
 }

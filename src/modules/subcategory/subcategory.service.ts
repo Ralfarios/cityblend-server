@@ -126,11 +126,10 @@ export class SubcategoryService {
         statusCode: HttpStatus.OK,
         data,
         error: null,
-        message: 'SubCa  has been edited',
+        message: 'Subcategory has been edited',
       });
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
-        console.log(error);
         if (error.code === 'P2025' && error.meta?.modelName === 'Subcategory')
           error.message = 'No Subcategory found';
         throw error;

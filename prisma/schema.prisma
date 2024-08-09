@@ -19,18 +19,16 @@ enum UserRole {
 }
 
 model User {
-  id              String       @id @default(cuid())
+  id              String    @id @default(cuid())
   name            String
-  username        String       @unique
-  email           String       @unique
+  username        String    @unique
+  email           String    @unique
   password        String
   profile_img_url String?
-  is_verified     Boolean      @default(false)
-  role            UserRole     @default(CUSTOMER)
-  subcategory     Subcategory? @relation(fields: [subcategory_id], references: [id], onDelete: Cascade)
-  subcategory_id  String?
-  created_at      DateTime     @default(now())
-  edited_at       DateTime?    @updatedAt
+  is_verified     Boolean   @default(false)
+  role            UserRole  @default(CUSTOMER)
+  created_at      DateTime  @default(now())
+  edited_at       DateTime? @updatedAt
 }
 
 model Product {
@@ -42,8 +40,18 @@ model Product {
   stock            ProductStock[]
   created_at       DateTime       @default(now())
   edited_at        DateTime?      @updatedAt
-  Subcategory      Subcategory?   @relation(fields: [subcategoryId], references: [id])
-  subcategoryId    String?
+  subcategory      Subcategory?   @relation(fields: [subcategory_id], references: [id])
+  subcategory_id   String?
+  product_images   ProductImage[]
+}
+
+model ProductImage {
+  id         String    @id @default(cuid())
+  image_url  String
+  product    Product?  @relation(fields: [product_id], references: [id])
+  product_id String?
+  created_at DateTime  @default(now())
+  edited_at  DateTime? @updatedAt
 }
 
 model Color {
@@ -100,5 +108,4 @@ model Subcategory {
   product       Product[]
   created_at    DateTime  @default(now())
   edited_at     DateTime? @updatedAt
-  User          User[]
 }

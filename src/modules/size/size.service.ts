@@ -14,6 +14,7 @@ import {
 } from 'src/common/dto/response.dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { SwapOrderSizeDto } from './dto/swap-order-size.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class SizeService {
@@ -51,16 +52,18 @@ export class SizeService {
     const orderSort = query?.order_sort || 'asc';
     const search = query.search;
 
+    const where: Prisma.SizeWhereInput = {
+      name: { contains: search, mode: 'insensitive' },
+    };
+
     try {
       const [count, records] = await this.db.$transaction([
-        this.db.size.count(),
+        this.db.size.count({ where }),
         this.db.size.findMany({
           skip: offset,
           take: limit,
           orderBy: { [orderBy]: orderSort },
-          where: {
-            name: { contains: search, mode: 'insensitive' },
-          },
+          where,
         }),
       ]);
 
@@ -121,8 +124,13 @@ export class SizeService {
 
   async remove(id: string) {
     try {
-      await this.db.size.delete({
+      const currDelete = await this.db.size.delete({
         where: { id },
+      });
+
+      await this.db.size.updateMany({
+        where: { display_order: { gt: currDelete.display_order } },
+        data: { display_order: { decrement: 1 } },
       });
 
       return new CommonResponseDto({
@@ -141,27 +149,31 @@ export class SizeService {
   }
 
   async swapOrder(id: string, swapOrderSizeDto: SwapOrderSizeDto) {
+    const displayOrder = swapOrderSizeDto.display_order;
+
     try {
-      const displayOrder = swapOrderSizeDto.display_order;
+      const data = await this.db.$transaction(async (prisma) => {
+        const curr = await prisma.size.findFirstOrThrow({
+          where: { id },
+          select: { display_order: true },
+        });
 
-      const curr = await this.db.size.findFirstOrThrow({
-        where: { id },
-        select: { display_order: true },
-      });
+        await prisma.size.update({
+          where: { display_order: displayOrder },
+          data: { display_order: -1 },
+        });
 
-      await this.db.size.update({
-        where: { display_order: displayOrder },
-        data: { display_order: -1 },
-      });
+        const result = await prisma.size.update({
+          where: { id },
+          data: { display_order: displayOrder },
+        });
 
-      const data = await this.db.size.update({
-        where: { id },
-        data: { display_order: displayOrder },
-      });
+        await prisma.size.update({
+          where: { display_order: -1 },
+          data: { display_order: curr.display_order },
+        });
 
-      await this.db.size.update({
-        where: { display_order: -1 },
-        data: { display_order: curr.display_order },
+        return result;
       });
 
       return new CommonResponseDto({

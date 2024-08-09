@@ -14,6 +14,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { DbService } from '../db/db.service';
 import { UpdateColorDto } from './dto/update-color.dto';
 import { SwapOrderColorDto } from './dto/swap-order-color.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ColorService {
@@ -51,16 +52,18 @@ export class ColorService {
     const orderSort = query?.order_sort || 'asc';
     const search = query.search;
 
+    const where: Prisma.ColorWhereInput = {
+      name: { contains: search, mode: 'insensitive' },
+    };
+
     try {
       const [count, records] = await this.db.$transaction([
-        this.db.color.count(),
+        this.db.color.count({ where }),
         this.db.color.findMany({
           skip: offset,
           take: limit,
           orderBy: { [orderBy]: orderSort },
-          where: {
-            name: { contains: search, mode: 'insensitive' },
-          },
+          where,
         }),
       ]);
 
@@ -121,8 +124,13 @@ export class ColorService {
 
   async remove(id: string) {
     try {
-      await this.db.color.delete({
+      const currDelete = await this.db.color.delete({
         where: { id },
+      });
+
+      await this.db.color.updateMany({
+        where: { display_order: { gt: currDelete.display_order } },
+        data: { display_order: { decrement: 1 } },
       });
 
       return new CommonResponseDto({
@@ -141,27 +149,31 @@ export class ColorService {
   }
 
   async swapOrder(id: string, swapOrderColorDto: SwapOrderColorDto) {
+    const displayOrder = swapOrderColorDto.display_order;
+
     try {
-      const displayOrder = swapOrderColorDto.display_order;
+      const data = await this.db.$transaction(async (prisma) => {
+        const curr = await prisma.color.findFirstOrThrow({
+          where: { id },
+          select: { display_order: true },
+        });
 
-      const curr = await this.db.color.findFirstOrThrow({
-        where: { id },
-        select: { display_order: true },
-      });
+        await prisma.color.update({
+          where: { display_order: displayOrder },
+          data: { display_order: -1 },
+        });
 
-      await this.db.color.update({
-        where: { display_order: displayOrder },
-        data: { display_order: -1 },
-      });
+        const result = await prisma.color.update({
+          where: { id },
+          data: { display_order: displayOrder },
+        });
 
-      const data = await this.db.color.update({
-        where: { id },
-        data: { display_order: displayOrder },
-      });
+        await prisma.color.update({
+          where: { display_order: -1 },
+          data: { display_order: curr.display_order },
+        });
 
-      await this.db.color.update({
-        where: { display_order: -1 },
-        data: { display_order: curr.display_order },
+        return result;
       });
 
       return new CommonResponseDto({

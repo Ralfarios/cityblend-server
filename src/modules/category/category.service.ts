@@ -65,7 +65,7 @@ export class CategoryService {
           orderBy: { [orderBy]: orderSort },
           where,
           include: {
-            subcategory: {
+            subcategories: {
               select: { id: true, name: true, code: true, display_order: true },
               orderBy: { display_order: 'asc' },
             },
@@ -95,7 +95,7 @@ export class CategoryService {
       const data = await this.db.category.findFirstOrThrow({
         where: { id },
         include: {
-          subcategory: {
+          subcategories: {
             select: { id: true, name: true, code: true, display_order: true },
           },
         },

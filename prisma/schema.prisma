@@ -43,6 +43,7 @@ model Product {
   subcategory      Subcategory?   @relation(fields: [subcategory_id], references: [id])
   subcategory_id   String?
   product_images   ProductImage[]
+  price            Int            @default(0)
 }
 
 model ProductImage {

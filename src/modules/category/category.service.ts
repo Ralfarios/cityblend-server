@@ -14,6 +14,7 @@ import { DEFAULT_PAGINATION_VALUE } from 'src/common/consts/pagination.const';
 import { PaginationCategoryQueryDto } from './dto/pagination-category.dto';
 import { SwapOrderCategoryDto } from './dto/swap-order-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CategoryService {
@@ -51,15 +52,23 @@ export class CategoryService {
     const orderSort = query?.order_sort || 'asc';
     const search = query.search;
 
+    const where: Prisma.CategoryWhereInput = {
+      name: { contains: search, mode: 'insensitive' },
+    };
+
     try {
       const [count, records] = await this.db.$transaction([
-        this.db.category.count(),
+        this.db.category.count({ where }),
         this.db.category.findMany({
           skip: offset,
           take: limit,
           orderBy: { [orderBy]: orderSort },
-          where: {
-            name: { contains: search, mode: 'insensitive' },
+          where,
+          include: {
+            subcategory: {
+              select: { id: true, name: true, code: true, display_order: true },
+              orderBy: { display_order: 'asc' },
+            },
           },
         }),
       ]);
@@ -83,7 +92,14 @@ export class CategoryService {
 
   async findOne(id: string) {
     try {
-      const data = await this.db.category.findFirstOrThrow({ where: { id } });
+      const data = await this.db.category.findFirstOrThrow({
+        where: { id },
+        include: {
+          subcategory: {
+            select: { id: true, name: true, code: true, display_order: true },
+          },
+        },
+      });
 
       return new CommonResponseDto({
         statusCode: HttpStatus.OK,
@@ -121,8 +137,13 @@ export class CategoryService {
 
   async remove(id: string) {
     try {
-      await this.db.category.delete({
+      const currDelete = await this.db.category.delete({
         where: { id },
+      });
+
+      await this.db.category.updateMany({
+        where: { display_order: { gt: currDelete.display_order } },
+        data: { display_order: { decrement: 1 } },
       });
 
       return new CommonResponseDto({
@@ -141,27 +162,31 @@ export class CategoryService {
   }
 
   async swapOrder(id: string, swapOrderCategoryDto: SwapOrderCategoryDto) {
+    const displayOrder = swapOrderCategoryDto.display_order;
+
     try {
-      const displayOrder = swapOrderCategoryDto.display_order;
+      const data = await this.db.$transaction(async (prisma) => {
+        const curr = await prisma.category.findFirstOrThrow({
+          where: { id },
+          select: { display_order: true },
+        });
 
-      const curr = await this.db.category.findFirstOrThrow({
-        where: { id },
-        select: { display_order: true },
-      });
+        await prisma.category.update({
+          where: { display_order: displayOrder },
+          data: { display_order: -1 },
+        });
 
-      await this.db.category.update({
-        where: { display_order: displayOrder },
-        data: { display_order: -1 },
-      });
+        const result = await prisma.category.update({
+          where: { id },
+          data: { display_order: displayOrder },
+        });
 
-      const data = await this.db.category.update({
-        where: { id },
-        data: { display_order: displayOrder },
-      });
+        await prisma.category.update({
+          where: { display_order: -1 },
+          data: { display_order: curr.display_order },
+        });
 
-      await this.db.category.update({
-        where: { display_order: -1 },
-        data: { display_order: curr.display_order },
+        return result;
       });
 
       return new CommonResponseDto({

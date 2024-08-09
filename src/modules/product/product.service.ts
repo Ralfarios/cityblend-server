@@ -58,6 +58,19 @@ export class ProductService {
           take: limit,
           orderBy: { [orderBy]: orderSort },
           where,
+          include: {
+            stocks: {
+              select: {
+                id: true,
+                stock_quantity: true,
+                color: {
+                  select: {
+                    color_code: true,
+                  },
+                },
+              },
+            },
+          },
         }),
       ]);
 
@@ -80,7 +93,35 @@ export class ProductService {
 
   async findOne(id: string) {
     try {
-      const data = await this.db.product.findFirstOrThrow({ where: { id } });
+      const data = await this.db.product.findFirstOrThrow({
+        where: { id },
+        include: {
+          product_images: { select: { id: true, image_url: true } },
+          stocks: {
+            select: {
+              id: true,
+              code: true,
+              stock_quantity: true,
+              discount_percent: true,
+              color: {
+                select: {
+                  id: true,
+                  name: true,
+                  code: true,
+                  color_code: true,
+                },
+              },
+              size: {
+                select: {
+                  id: true,
+                  name: true,
+                  code: true,
+                },
+              },
+            },
+          },
+        },
+      });
 
       return new CommonResponseDto({
         statusCode: HttpStatus.OK,

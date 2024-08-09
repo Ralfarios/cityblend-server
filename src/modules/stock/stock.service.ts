@@ -26,11 +26,11 @@ export class StockService {
         select: {
           id: true,
           code: true,
-          products: { select: { name: true, id: true, code: true } },
-          colors: {
+          product: { select: { name: true, id: true, code: true } },
+          color: {
             select: { name: true, id: true, code: true, color_code: true },
           },
-          sizes: { select: { name: true, id: true, code: true } },
+          size: { select: { name: true, id: true, code: true } },
           stock_quantity: true,
           discount_percent: true,
           created_at: true,
@@ -60,9 +60,9 @@ export class StockService {
     const size_search = query.size_search;
 
     const where: Prisma.ProductStockWhereInput = {
-      colors: { name: { contains: color_search, mode: 'insensitive' } },
-      products: { name: { contains: product_search, mode: 'insensitive' } },
-      sizes: { name: { contains: size_search, mode: 'insensitive' } },
+      color: { name: { contains: color_search, mode: 'insensitive' } },
+      product: { name: { contains: product_search, mode: 'insensitive' } },
+      size: { name: { contains: size_search, mode: 'insensitive' } },
     };
 
     try {
@@ -76,11 +76,11 @@ export class StockService {
           select: {
             id: true,
             code: true,
-            products: { select: { name: true, id: true, code: true } },
-            colors: {
+            product: { select: { name: true, id: true, code: true } },
+            color: {
               select: { name: true, id: true, code: true, color_code: true },
             },
-            sizes: { select: { name: true, id: true, code: true } },
+            size: { select: { name: true, id: true, code: true } },
             stock_quantity: true,
             discount_percent: true,
             created_at: true,
@@ -113,11 +113,11 @@ export class StockService {
         select: {
           id: true,
           code: true,
-          products: { select: { name: true, id: true, code: true } },
-          colors: {
+          product: { select: { name: true, id: true, code: true } },
+          color: {
             select: { name: true, id: true, code: true, color_code: true },
           },
-          sizes: { select: { name: true, id: true, code: true } },
+          size: { select: { name: true, id: true, code: true } },
           stock_quantity: true,
           discount_percent: true,
           created_at: true,
@@ -156,11 +156,11 @@ export class StockService {
           select: {
             id: true,
             code: true,
-            products: { select: { name: true, id: true, code: true } },
-            colors: {
+            product: { select: { name: true, id: true, code: true } },
+            color: {
               select: { name: true, id: true, code: true, color_code: true },
             },
-            sizes: { select: { name: true, id: true, code: true } },
+            size: { select: { name: true, id: true, code: true } },
             stock_quantity: true,
             discount_percent: true,
             created_at: true,

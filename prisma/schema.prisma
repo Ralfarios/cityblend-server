@@ -37,7 +37,7 @@ model Product {
   name             String
   care_instruction String?
   description      String?
-  stock            ProductStock[]
+  stocks           ProductStock[]
   created_at       DateTime       @default(now())
   edited_at        DateTime?      @updatedAt
   subcategory      Subcategory?   @relation(fields: [subcategory_id], references: [id])
@@ -78,11 +78,11 @@ model Size {
 
 model ProductStock {
   id               String    @id @default(cuid())
-  products         Product?  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  product          Product?  @relation(fields: [product_id], references: [id], onDelete: Cascade)
   product_id       String?
-  colors           Color?    @relation(fields: [color_id], references: [id], onDelete: Cascade)
+  color            Color?    @relation(fields: [color_id], references: [id], onDelete: Cascade)
   color_id         String?
-  sizes            Size?     @relation(fields: [size_id], references: [id], onDelete: Cascade)
+  size             Size?     @relation(fields: [size_id], references: [id], onDelete: Cascade)
   size_id          String?
   stock_quantity   Int       @default(0)
   discount_percent Int?      @default(0)
@@ -98,7 +98,7 @@ model Category {
   display_order Int           @unique
   created_at    DateTime      @default(now())
   edited_at     DateTime?     @updatedAt
-  subcategory   Subcategory[]
+  subcategories   Subcategory[]
 }
 
 model Subcategory {
@@ -108,7 +108,7 @@ model Subcategory {
   display_order Int
   category      Category? @relation(fields: [category_id], references: [id], onDelete: Cascade)
   category_id   String?
-  product       Product[]
+  products      Product[]
   created_at    DateTime  @default(now())
   edited_at     DateTime? @updatedAt
 }

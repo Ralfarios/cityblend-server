@@ -177,7 +177,6 @@ export class StockService {
       });
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
-        console.log(error);
         if (error.code === 'P2025' && error.meta?.modelName === 'ProductStock')
           error.message = 'No Stock found';
         throw error;

@@ -51,6 +51,8 @@ model ProductImage {
   image_url  String
   product    Product?  @relation(fields: [product_id], references: [id])
   product_id String?
+  color      Color?    @relation(fields: [color_id], references: [id])
+  color_id   String?
   created_at DateTime  @default(now())
   edited_at  DateTime? @updatedAt
 }
@@ -64,6 +66,7 @@ model Color {
   created_at    DateTime       @default(now())
   edited_at     DateTime?      @updatedAt
   stock         ProductStock[]
+  ProductImage  ProductImage[]
 }
 
 model Size {
@@ -98,7 +101,7 @@ model Category {
   display_order Int           @unique
   created_at    DateTime      @default(now())
   edited_at     DateTime?     @updatedAt
-  subcategories   Subcategory[]
+  subcategories Subcategory[]
 }
 
 model Subcategory {

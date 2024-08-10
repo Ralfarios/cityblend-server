@@ -7,6 +7,7 @@ import { ProductModule } from './modules/product/product.module';
 import { CategoryModule } from './modules/category/category.module';
 import { SubcategoryModule } from './modules/subcategory/subcategory.module';
 import { StockModule } from './modules/stock/stock.module';
+import { UploaderModule } from './modules/uploader/uploader.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { StockModule } from './modules/stock/stock.module';
     CategoryModule,
     SubcategoryModule,
     StockModule,
+    UploaderModule,
   ],
   controllers: [AppController],
   providers: [AppService],
